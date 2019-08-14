@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="UTF-8">
+<title>直播频道监控工具</title>
+<!-- 常量CSS BEGIN -->
+<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"  />
+<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-responsive.min.css"  />
+<link rel="stylesheet" type="text/css" href="../static/css/jquery.gritter.css" />
+
+<link rel="stylesheet" type="text/css" href="../static/css/style.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/select2_metro.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/DT_bootstrap.css" />
+<!--<link rel="stylesheet" type="text/css" href="static/css/bootstrap-modal-bs3patch.css" />-->
+<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-modal.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/jquery-ui-1.10.1.custom.min.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-fileupload.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/jquery.ui.slider.css" />
+<link rel="stylesheet" type="text/css" href="../static/css/font-awesome.min.css" />
+
+<!-- END PAGE LEVEL STYLES -->
+<link rel="shortcut icon" href="../static/image/favicon.ico" />
+<!-- BEGIN PAGE LEVEL SCRIPTS -->
+
+<script type="text/javascript" src="../static/js/jquery-1.10.1.min.js" ></script>
+<script type="text/javascript" src="../static/js/json2.js"></script>
+<script type="text/javascript" src="../static/js/jquery-migrate-1.2.1.min.js" ></script>
+<script type="text/javascript" src="../static/js/jquery-ui-1.10.1.custom.min.js" ></script>
+<script type="text/javascript" src="../static/js/select2.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../static/js/DT_bootstrap.js"></script>
+
+<script type="text/javascript" src="../static/js/underscore-min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="../static/js/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap.min.js" ></script>
+<script type="text/javascript" src="../static/js/jquery.slimscroll.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.blockui.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.uniform.min.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap-modalmanager.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap-modal.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="../static/css/bootstrap-datetimepicker.min.css" />
+<script type="text/javascript"
+	src="../static/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript"
+	src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+<script type="text/javascript" src="../static/js/app.js"></script>
+
+<!-- 业务js BEGIN -->
+<script type="text/javascript" src="../static/appjs/common.js"></script>
+<script type="text/javascript" src="../static/appjs/_chn_monitor.js"></script>
+<script type="text/javascript" src="../static/appjs/_chn_history.js"></script>
+<script type="text/javascript">
+
+var chnMonitorList;
+var chnHistoryList;
+var timer;
+
+function searchChnMonitorList(){
+   chnMonitorList.searchChnMonitorList()
+}
+
+function stopTimer() {
+   clearTimeout(timer);
+}
+
+$(document).ready(function(){
+	
+ 	$.fn.modalmanager.defaults.resize = true;
+	$.fn.modalmanager.defaults.spinner = '<div class="loading-spinner fade" style="width: 200px; margin-left: -100px;"><img src="static/image/ajax-modal-loading.gif" align="middle">&nbsp;<span style="font-weight:300; color: #eee; font-size: 18px; font-family:Open Sans;">&nbsp;Loading...</div>';
+
+	_.templateSettings = {
+		evaluate : /\{\{([\s\S]+?)\}\}/g,
+		interpolate : /\{\{=([\s\S]+?)\}\}/g,
+		escape : /\{\{-([\s\S]+?)\}\}/g
+	};
+
+	chnMonitorList = new TOOL_CHNMONITORLIST({
+		host :"",
+		idc:"",
+		status:"0",
+		channel:""
+	});
+
+	chnHistoryList = new TOOL_CHNHISTORYLIST({
+		host :"",
+		channel:"",
+		start:$("#starttime").val(),
+		end:$("#endtime").val()
+	});
+
+	var obj={'form1':$("#cp_form_idcid"),'key1':$("#cp_idc_id")};
+	chnMonitorList.loadIdcList(obj);
+
+	timer = setTimeout("searchChnMonitorList()", 10000);
+
+	loadDatetimePicker($("#starttime"), $("#endtime"),-30);
+
+});
+
+	// 提示信息
+	function modalAlert(info) {
+		$("#modal_alert_info").html(info);
+		$("#modal_alert").modal();
+	}
+
+</script>
+
+</head>
+<body class="page-header-fixed">
+
+		<div class="container-fluid">
+			<h3 class="portlet-title">
+				直播频道服务查询<small>实时查询服务状态的工具</small>
+			</h3>
+			<div class="tabbable tabbable-custom boxless">
+					<ul class="nav nav-tabs" id="tabs_asset">
+						<li class="active"><a href="#tab_channel_monitor" data-toggle="tab">频道管理</a></li>
+					</ul>
+
+					<div class="tab-content">
+					
+					    <!-- 待下载视频 BEGIN-->
+						<div class="tab-pane active" id="tab_channel_monitor">
+						  <div class="portlet-body">
+							<div class="clearfix">
+
+								<!-- 查询条件  BEGIN -->
+								<div class="btn-group">
+									 <button id="action_channel_monitor" 
+												class="btn pull-right btn-warning" type="button">
+										添加频道
+									 </button>
+								</div>
+                                <!-- 查询条件  BEGIN -->
+								<div class="btn-group">
+									 <button id="action_channel_time" 
+												class="btn pull-right btn-warning" type="button">
+										关闭刷新
+										<i class="icon-time"></i>
+										<input type="hidden"  id="hdtime" value="start" />
+									 </button>
+								</div>
+								<form class="input-append form-search pull-right">
+
+								      <select id="cp_idc_id"  class="span2 m-wrap" data-placeholder="请选择">
+										                                  
+									  </select>
+									  
+									  <select id="cp_status"  class="span2 m-wrap" data-placeholder="请选择">
+										   <option value="0">状态--全部</option>
+										   <option value="1">初始化</option>
+										   <option value="2">正常</option> 
+										   <option value="3">异常</option> 
+										   <option value="99">禁用</option> 
+									  </select>
+
+									  <input id="chanelName" class="m-wrap span2 input_ref"
+											type="text" placeholder="频道名称"> 
+
+									  <button id="action_channel_monitor_search" class="btn btn-primary" type="button">查询</button>
+
+								</form>
+								<h3 class="portlet-title"></h3>
+								<table id="table_channel_monitor_list"
+									class="table table-striped table-bordered table-hover">
+									<thead>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+						    </div>
+					      </div>
+						</div>
+					
+						<!-- 待下载视频 END-->
+
+					</div>
+				</div>
+
+	  <!-- END ALBUM DETAIL MODAL-->
+		
+	  <!-- BEGIN VIDEO LIST MODAL-->
+	  <div id="modal_channel_monitor_list" class="modal hide fade" tabindex="-1"
+		role="dialog" aria-labelledby="header_channel_monitor_list"
+		aria-hidden="true">
+
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"
+				aria-hidden="true"></button>
+			<h4 id="header_channel_monitor_list">频道管理</h4>
+		</div>
+
+		<div id="bodyBatch" class="modal-body">
+
+			<div class="container-fluid">
+		    
+				<div class="portlet-body">
+
+					 <form id="form_chn_monitor_detail" action="#" class="form-horizontal">
+
+						<input type="hidden"  id="hdchnmonitorid" value="" />
+                        <input type="hidden"  id="hdchannel" value="" />
+						<div class="control-group">
+							<label class="control-label">机房名称<span class="required">*</span></label>
+
+							<div class="controls input-icon">
+							    <select id="cp_form_idcid" name="idc" class="span4 m-wrap input_ref" data-placeholder="请选择" tabindex="1">			
+								</select>
+						
+							</div>
+						</div>
+
+						<div class="control-group">
+
+							<label class="control-label">频道名称</label>
+							
+							<div class="controls">
+									<input type="text" id="txt_channel" name="channel"
+									data-required="1" placeholder="" class="m-wrap span4" />
+							</div>
+						</div>
+                        
+						<div class="control-group">
+							<label class="control-label">报警阈值（s）</label>
+							
+							<div class="controls">
+
+                                <select id="cp_thr_time" name="thr_time" class="span2 m-wrap" data-placeholder="请选择">
+                                    <option value="1500">1500s</option>
+                                    <option value="1200">1200s</option>
+                                    <option value="1000">1000s</option>
+                                       <option value="500">500s</option>
+								       <option value="300">300s</option>
+								       <option value="200">200s</option>
+									   <option value="150">150s</option>
+									   <option value="120">120s</option>
+								       <option value="100">100s</option>
+									   <option value="60">60s</option>
+									   <option value="50">50s</option> 
+									   <option value="40">40s</option> 
+									   <option value="30">30s</option> 
+								  </select>
+
+							</div>
+						</div>
+
+                        <div class="control-group" id="div_status">
+
+							<label class="control-label">状态</label>
+							
+							<div class="controls">
+
+								<select id="cp_form_status" name="status" class="span2 m-wrap" data-placeholder="请选择">
+									   <option value="2">启用</option>
+									   <option value="99">禁用</option> 
+								</select>
+							</div>
+						</div>
+
+					</form>
+
+				</div>
+			            <h3 class="portlet-title"></h3>
+						<div class="pull-right">
+							<button id="action_chn_monitor_save" class="btn green btn-primary">保存</button>
+							<button class="btn" 
+								data-dismiss="modal" aria-hidden="true">关闭</button>
+						</div>
+		    </div>
+		</div>
+	</div>
+	<!-- END PROCURE BATCH LIST MODAL-->
+
+	<!-- BEGIN HISTORY LIST MODAL-->
+	 <div id="modal_channel_history_list" class="modal hide fade" tabindex="-1"
+		role="dialog" aria-labelledby="header_history_list" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"
+				aria-hidden="true"></button>
+			<h4 id="header_history_list">警告历史查看</h4>
+		</div>
+		<div id="bodyBatch" class="modal-body">
+
+			<div class="container-fluid">
+		        <div class="portlet-body">
+					<div class="clearfix">
+
+						<div class="row-fluid">
+							
+						   <div class="controls input-icon span4">
+							    <div class="input-append date form_datetime">
+									<input class="m-wrap span12" type="text" id="starttime"
+										data-date-format="yyyy-mm-dd hh:ii:ss" readonly size="16"> <span
+										class="add-on"> <i class="icon-calendar"></i>
+									</span>
+							    </div>
+							</div>
+						
+							<div class="controls input-icon span4">
+							     <div class="input-append date form_datetime">
+									<input class="m-wrap span12" type="text" id="endtime"
+										data-date-format="yyyy-mm-dd hh:ii:ss" readonly size="16"> <span
+										class="add-on"> <i class="icon-calendar"></i>
+									</span>
+							    </div>
+							</div>
+
+							<div class="controls input-icon span2">
+								<div class="span11">
+								   <button id="action_channel_history_search" class="btn btn-primary"
+								     type="button">查询</button>  
+								</div>
+							</div>
+           
+						    </div>
+							<h3 class="portlet-title"></h3>
+							<table id="table_history_list" 
+							class="table table-striped table-bordered table-hover">
+								<thead></thead>
+								<tbody></tbody>
+							</table>
+					</div>
+				</div>	
+		     </div>
+		    </div>
+		</div>
+
+		<div class="modal-footer">
+			<input type="hidden" id='chn_history_temp' value="">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+		</div>
+
+	</div> 
+	<!-- END HISTORY LIST MODAL-->
+
+	</body>
+</html>
+
+
+
+
+
